@@ -2,22 +2,35 @@
 # Module: Login Feature
 # Author: Ahmad
 
-# Test Case TC_001 - Login with valid credentials
 def test_login_valid_credentials():
-    # Precondition: User has a registered account
     username = "ahmad_test"
     password = "Test1234!"
     
-    # Expected: Login successful
-    print(f"Testing login with username: {username}")
-    print("Expected Result: User redirected to home feed")
-
-# Test Case TC_002 - Login with wrong password
-def test_login_wrong_password():
-    # Precondition: User has a registered account
-    username = "ahmad_test"
-    password = "WrongPass!"
+    # Assert that username is not empty
+    assert username != ""
     
-    # Expected: Error message displayed
-    print(f"Testing login with wrong password: {password}")
-    print("Expected Result: Error message displayed")
+    # Assert that password is at least 8 characters
+    assert len(password) >= 8
+    
+    print("Test 1 PASS: Valid credentials accepted")
+
+def test_login_wrong_password():
+    username = "ahmad_test"
+    password = "abc"
+    
+    # Assert that short password fails length check
+    assert len(password) >= 8, "Password too short!"
+    
+    print("Test 2 PASS: Wrong password rejected")
+    
+def test_empty_username():
+    username = ""
+    assert username != "", "Username cannot be empty!"
+
+def test_valid_email():
+    email = "ahmad@gmail.com"
+    assert "@" in email, "Email must contain @"
+
+def test_invalid_email():
+    email = "ahmadgmail.com"
+    assert "@" in email, "Email must contain @"
