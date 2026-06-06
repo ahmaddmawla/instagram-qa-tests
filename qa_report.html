@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Test Execution Report — Instagram Login Module</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --panel: #181b24;
+    --panel-2: #1f232f;
+    --border: #2a2f3c;
+    --text: #e6e9ef;
+    --muted: #8b93a7;
+    --pass: #3fb950;
+    --fail: #f85149;
+    --accent: #58a6ff;
+    --accent-dim: #1f6feb;
+    --pass-bg: rgba(63,185,80,0.12);
+    --fail-bg: rgba(248,81,73,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 40px 24px;
+  }
+
+  .container { max-width: 980px; margin: 0 auto; }
+
+  /* Header */
+  .report-header {
+    border-left: 4px solid var(--accent);
+    padding: 4px 0 4px 20px;
+    margin-bottom: 32px;
+  }
+  .report-header .eyebrow {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .report-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .report-header .subtitle { color: var(--muted); font-size: 15px; }
+
+  /* Meta grid */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .meta-cell { background: var(--panel); padding: 16px 18px; }
+  .meta-cell .label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .meta-cell .value { font-size: 14px; font-weight: 500; }
+  .meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+  /* Summary cards */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card .num { font-size: 34px; font-weight: 700; line-height: 1; font-family: 'JetBrains Mono', monospace; }
+  .card .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 8px; }
+  .card.total .num { color: var(--text); }
+  .card.pass .num { color: var(--pass); }
+  .card.fail .num { color: var(--fail); }
+  .card.rate .num { color: var(--accent); }
+  .card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; height: 3px; width: 100%;
+  }
+  .card.pass::after { background: var(--pass); }
+  .card.fail::after { background: var(--fail); }
+  .card.rate::after { background: var(--accent); }
+  .card.total::after { background: var(--muted); }
+
+  /* Progress bar */
+  .progress-wrap { margin-bottom: 32px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .progress-bar { height: 10px; background: var(--fail); border-radius: 6px; overflow: hidden; display: flex; }
+  .progress-bar .filled { background: var(--pass); height: 100%; }
+
+  /* Section title */
+  .section-title {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); font-weight: 600;
+    margin: 0 0 14px 0; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Results table */
+  .results { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+  .results table { width: 100%; border-collapse: collapse; }
+  .results th {
+    background: var(--panel-2); text-align: left; padding: 12px 18px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600;
+  }
+  .results td { padding: 13px 18px; border-top: 1px solid var(--border); font-size: 14px; vertical-align: top; }
+  .results tr:nth-child(even) td { background: rgba(255,255,255,0.012); }
+  .test-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .test-param { color: var(--muted); }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .badge.pass { background: var(--pass-bg); color: var(--pass); }
+  .badge.fail { background: var(--fail-bg); color: var(--fail); }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge.pass .dot { background: var(--pass); }
+  .badge.fail .dot { background: var(--fail); }
+
+  .reason { color: var(--muted); font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Defect cards */
+  .defects { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .defect {
+    background: var(--panel); border: 1px solid var(--border);
+    border-left: 3px solid var(--fail); border-radius: 8px; padding: 16px 18px;
+  }
+  .defect .d-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .defect .d-id { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); }
+  .defect .d-sev { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 9px; border-radius: 12px; font-weight: 600; }
+  .sev-high { background: var(--fail-bg); color: var(--fail); }
+  .sev-med { background: rgba(210,153,34,0.15); color: #d29922; }
+  .defect .d-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .defect .d-detail { font-size: 13px; color: var(--muted); }
+  .defect .d-detail code { font-family: 'JetBrains Mono', monospace; background: var(--panel-2); padding: 1px 6px; border-radius: 4px; color: var(--text); }
+
+  /* Assessment */
+  .assessment {
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 32px;
+  }
+  .assessment h3 { font-size: 15px; margin-bottom: 10px; }
+  .assessment p { font-size: 14px; color: var(--muted); margin-bottom: 10px; }
+  .assessment p:last-child { margin-bottom: 0; }
+  .verdict { display: inline-block; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; background: var(--fail-bg); color: var(--fail); margin-top: 4px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 720px) {
+    .meta-grid, .summary { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="report-header">
+    <div class="eyebrow">QA Test Execution Report</div>
+    <h1>Instagram — Login &amp; Registration Module</h1>
+    <div class="subtitle">Automated functional test suite · Sprint 1 (IQT)</div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-cell">
+      <div class="label">Tester</div>
+      <div class="value">Ahmad Al Mawla</div>
+    </div>
+    <div class="meta-cell">
+      <div class="label">Date</div>
+      <div class="value">June 6, 2026</div>
+    </div>
+    <div class="meta-cell">
+      <div class="label">Framework</div>
+      <div class="value mono">pytest 9.0.3</div>
+    </div>
+    <div class="meta-cell">
+      <div class="label">Environment</div>
+      <div class="value mono">Win 11 · Py 3.12</div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="card total"><div class="num">11</div><div class="lbl">Total Tests</div></div>
+    <div class="card pass"><div class="num">5</div><div class="lbl">Passed</div></div>
+    <div class="card fail"><div class="num">6</div><div class="lbl">Failed</div></div>
+    <div class="card rate"><div class="num">45%</div><div class="lbl">Pass Rate</div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Execution Result</span><span>5 / 11 passed · 0.34s</span></div>
+    <div class="progress-bar"><div class="filled" style="width:45.5%"></div></div>
+  </div>
+
+  <div class="section-title">Test Results</div>
+  <div class="results">
+    <table>
+      <thead>
+        <tr><th>Test Case</th><th>Input</th><th>Status</th><th>Details</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="test-name">test_login_valid_credentials</td>
+          <td class="test-param">Test1234! (9 chars)</td>
+          <td><span class="badge pass"><span class="dot"></span>Pass</span></td>
+          <td class="reason">—</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_login_wrong_password</td>
+          <td class="test-param">abc (3 chars)</td>
+          <td><span class="badge fail"><span class="dot"></span>Fail</span></td>
+          <td class="reason">assert 3 &gt;= 8</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_empty_username</td>
+          <td class="test-param">"" (empty)</td>
+          <td><span class="badge fail"><span class="dot"></span>Fail</span></td>
+          <td class="reason">assert '' != ''</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_valid_email</td>
+          <td class="test-param">ahmad@gmail.com</td>
+          <td><span class="badge pass"><span class="dot"></span>Pass</span></td>
+          <td class="reason">—</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_invalid_email</td>
+          <td class="test-param">ahmadgmail.com</td>
+          <td><span class="badge fail"><span class="dot"></span>Fail</span></td>
+          <td class="reason">'@' not in email</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_multiple_valid_emails</td>
+          <td class="test-param">ahmad@gmail.com</td>
+          <td><span class="badge pass"><span class="dot"></span>Pass</span></td>
+          <td class="reason">—</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_multiple_valid_emails</td>
+          <td class="test-param">test@yahoo.com</td>
+          <td><span class="badge pass"><span class="dot"></span>Pass</span></td>
+          <td class="reason">—</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_multiple_valid_emails</td>
+          <td class="test-param">user@hotmail.com</td>
+          <td><span class="badge pass"><span class="dot"></span>Pass</span></td>
+          <td class="reason">—</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_multiple_weak_passwords</td>
+          <td class="test-param">short (5 chars)</td>
+          <td><span class="badge fail"><span class="dot"></span>Fail</span></td>
+          <td class="reason">assert 5 &gt;= 8</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_multiple_weak_passwords</td>
+          <td class="test-param">ab (2 chars)</td>
+          <td><span class="badge fail"><span class="dot"></span>Fail</span></td>
+          <td class="reason">assert 2 &gt;= 8</td>
+        </tr>
+        <tr>
+          <td class="test-name">test_multiple_weak_passwords</td>
+          <td class="test-param">1234567 (7 chars)</td>
+          <td><span class="badge fail"><span class="dot"></span>Fail</span></td>
+          <td class="reason">assert 7 &gt;= 8</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Defect Analysis</div>
+  <div class="defects">
+    <div class="defect">
+      <div class="d-head">
+        <span class="d-id">DEF-01 · Password length validation</span>
+        <span class="d-sev sev-high">High</span>
+      </div>
+      <div class="d-title">Passwords shorter than 8 characters are not rejected by validation logic.</div>
+      <div class="d-detail">Observed across <code>abc</code>, <code>short</code>, <code>ab</code>, <code>1234567</code>. Each input below the 8-character minimum failed the assertion, confirming the rule is enforced by the test but flagged as expected negative behaviour.</div>
+    </div>
+    <div class="defect">
+      <div class="d-head">
+        <span class="d-id">DEF-02 · Empty username accepted</span>
+        <span class="d-sev sev-med">Medium</span>
+      </div>
+      <div class="d-title">Empty username string does not raise a validation error.</div>
+      <div class="d-detail">Input <code>""</code> failed the not-empty assertion — registration flow should block empty usernames before submission.</div>
+    </div>
+    <div class="defect">
+      <div class="d-head">
+        <span class="d-id">DEF-03 · Email format validation</span>
+        <span class="d-sev sev-med">Medium</span>
+      </div>
+      <div class="d-title">Email missing the "@" symbol passes through without error.</div>
+      <div class="d-detail">Input <code>ahmadgmail.com</code> failed the format assertion — email field requires stricter format validation.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Assessment</div>
+  <div class="assessment">
+    <h3>Summary &amp; Recommendation</h3>
+    <p>The automated suite executed 11 test cases covering valid and invalid credential scenarios for the login and registration flow. Positive-path cases (valid credentials, correctly formatted emails) passed as expected. The 6 failing cases are negative-path scenarios confirming that validation rules for password length, empty usernames, and email format are being actively checked.</p>
+    <p>Three defect groups were identified and should be routed to the development team for review before the module advances to UAT. No critical crashes or blocking issues were observed during execution.</p>
+    <span class="verdict">Verdict: Not ready for release — 3 defects pending fix</span>
+  </div>
+
+  <footer>
+    Generated with pytest-html · Instagram QA Testing · IQT Sprint 1 · Confidential
+  </footer>
+
+</div>
+</body>
+</html>
