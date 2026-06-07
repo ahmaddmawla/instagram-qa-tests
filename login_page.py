@@ -1,27 +1,19 @@
-import pytest
-from playwright.sync_api import Page, expect
-from login_page import LoginPage
+from playwright.sync_api import Page
 
-def test_successful_login(page: Page):
-    # Create the login page object
-    login_page = LoginPage(page)
+class LoginPage:
+    def __init__(self, page: Page):
+        self.page = page
+        self.url = "https://the-internet.herokuapp.com/login"
+        self.username_field = "#username"
+        self.password_field = "#password"
+        self.login_button = "button[type='submit']"
+        self.success_message = ".flash.success"
+        self.error_message = ".flash.error"
     
-    # Use clean, readable actions
-    login_page.go_to()
-    login_page.login("tomsmith", "SuperSecretPassword!")
+    def go_to(self):
+        self.page.goto(self.url)
     
-    # Verify success
-    expect(page.locator(login_page.success_message)).to_be_visible()
-    print("Test PASS: Login successful")
-
-def test_failed_login(page: Page):
-    # Create the login page object
-    login_page = LoginPage(page)
-    
-    # Use clean, readable actions
-    login_page.go_to()
-    login_page.login("wronguser", "wrongpassword")
-    
-    # Verify error
-    expect(page.locator(login_page.error_message)).to_be_visible()
-    print("Test PASS: Error message shown")
+    def login(self, username, password):
+        self.page.fill(self.username_field, username)
+        self.page.fill(self.password_field, password)
+        self.page.click(self.login_button)
